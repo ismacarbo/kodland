@@ -1,16 +1,4 @@
-
-
-
-
-
-
-
-
-
-
-
-
-from pygame import Rect  
+from pygame import Rect
 from math import hypot
 from random import choice, randint
 
@@ -28,6 +16,19 @@ state = STATE_MENU
 
 music_enabled = True
 sfx_enabled = True
+master_volume = 0.8  
+
+
+MENU_TITLE_Y = 80
+MENU_INFO_Y = 130
+SLIDER_Y = 200
+SLIDER_W = 360
+SLIDER_H = 8
+BUTTON_W, BUTTON_H, BUTTON_GAP = 300, 64, 16
+BUTTONS_BASE_Y = 280  
+
+
+dragging_slider = False
 
 
 LEVEL = [
@@ -52,41 +53,55 @@ def is_blocked(gx, gy):
     return LEVEL[gy][gx] == "
 
 
+def clamp(v, lo, hi):
+    return lo if v < lo else hi if v > hi else v
+
+
+def set_master_volume(v):
+    """Aggiorna il volume di musica e SFX (0..1)."""
+    global master_volume
+    master_volume = clamp(v, 0.0, 1.0)
+    try:
+        
+        music.set_volume(master_volume)
+    except Exception:
+        pass
+    
+
+
 def play_sfx(name):
     if not sfx_enabled:
         return
     try:
-        getattr(sounds, name).play()
+        s = getattr(sounds, name)
+        
+        try:
+            s.set_volume(master_volume)
+        except Exception:
+            pass
+        s.play()
     except Exception:
         pass
 
 
 class AnimatedActor:
-    """Attore su griglia con animazione idle/walk e interpolazione tra celle."""
+    """Attore su griglia con animazione idle/walk e interpolazione."""
 
     def __init__(self, idle_frames, walk_frames, gx, gy, speed=220):
-        
         self.idle_frames = idle_frames or ["hero_idle_0"]
         self.walk_frames = walk_frames or self.idle_frames
-
-        
-        try:
-            self.actor = Actor(self.idle_frames[0], anchor=("center", "center"))
-        except Exception:
-            self.actor = None
-
-        
         self.gx, self.gy = gx, gy
         self.x, self.y = grid_to_px(gx, gy)
         self.tx, self.ty = self.x, self.y
-        if self.actor:
-            self.actor.pos = (self.x, self.y)
-
-        
         self.speed = speed
         self.moving = False
-        self.state = "idle"  
+        self.state = "idle"
         self.frame_index = 0
+        try:
+            self.actor = Actor(self.idle_frames[0], anchor=("center", "center"))
+            self.actor.pos = (self.x, self.y)
+        except Exception:
+            self.actor = None
 
     
     def set_state(self, st):
@@ -132,12 +147,10 @@ class AnimatedActor:
         if self.actor:
             self.actor.pos = (self.x, self.y)
 
-    
     def draw(self):
         if self.actor:
             self.actor.draw()
         else:
-            
             screen.draw.filled_circle((self.x, self.y), 20, "white")
             screen.draw.circle((self.x, self.y), 20, "black")
 
@@ -152,7 +165,7 @@ class Player(AnimatedActor):
             speed=260,
         )
         self.hp = 5
-        self.invuln_timer = 0.0  
+        self.invuln_timer = 0.0
 
     def update(self, dt):
         if self.invuln_timer > 0:
@@ -206,18 +219,17 @@ player = None
 enemies = []
 
 
-BUTTON_W, BUTTON_H, BUTTON_GAP = 300, 64, 16
 buttons = []
 
 
 def build_buttons():
+    """Costruisce i tre pulsanti, posizionati più in basso."""
     center_x = WIDTH // 2
-    base_y = HEIGHT // 2 - (BUTTON_H * 1.5 + BUTTON_GAP * 1.0)
     labels = ["Start Game", "Toggle Music + SFX", "Exit"]
     out = []
     for i, label in enumerate(labels):
         r = Rect(0, 0, BUTTON_W, BUTTON_H)
-        r.center = (center_x, base_y + i * (BUTTON_H + BUTTON_GAP))
+        r.center = (center_x, BUTTONS_BASE_Y + i * (BUTTON_H + BUTTON_GAP))
         out.append({"rect": r, "label": label})
     return out
 
@@ -237,7 +249,7 @@ def start_game():
     state = STATE_GAME
     
     try:
-        music.set_volume(0.8)
+        music.set_volume(master_volume)
         if music_enabled:
             music.play("theme")
         else:
@@ -257,7 +269,6 @@ def back_to_menu():
 
 
 def draw_grid():
-    
     for gy in range(ROWS):
         for gx in range(COLS):
             x, y = gx * TILE, gy * TILE
@@ -269,28 +280,55 @@ def draw_grid():
             screen.draw.rect(r, (15, 15, 22))
 
 
+def draw_menu_slider():
+    """Disegna lo slider del volume (bar + knob + etichette)."""
+    bar_x = WIDTH // 2 - SLIDER_W // 2
+    bar_y = SLIDER_Y
+    bar_rect = Rect(bar_x, bar_y - SLIDER_H // 2, SLIDER_W, SLIDER_H)
+
+    
+    screen.draw.filled_rect(bar_rect, (80, 82, 105))
+    screen.draw.rect(bar_rect, (200, 200, 220))
+
+    
+    knob_x = int(bar_x + master_volume * SLIDER_W)
+    knob_r = 10
+    
+    r = knob_r + (3 if dragging_slider else 0)
+    screen.draw.filled_circle((knob_x, bar_y), r, "white")
+    screen.draw.circle((knob_x, bar_y), r, "black")
+
+    
+    screen.draw.text("Volume", midbottom=(WIDTH // 2, bar_y - 12), fontsize=28, color="white", owidth=0.5, ocolor="black")
+    screen.draw.text(f"{int(master_volume * 100)}%", midtop=(WIDTH // 2, bar_y + 12), fontsize=24, color="gray")
+
+
 def draw_menu():
     screen.clear()
     screen.fill((20, 20, 28))
+    
     screen.draw.text(
         "Tiny Grid Roguelike",
-        center=(WIDTH // 2, HEIGHT // 4),
-        fontsize=56,
-        color="white",
-        owidth=1.2,
-        ocolor="black",
+        center=(WIDTH // 2, MENU_TITLE_Y),
+        fontsize=56, color="white", owidth=1.2, ocolor="black"
     )
+    
     info = f"Music: {'ON' if music_enabled else 'OFF'}   SFX: {'ON' if sfx_enabled else 'OFF'}"
-    screen.draw.text(info, center=(WIDTH // 2, HEIGHT // 4 + 44), fontsize=28, color="gray")
+    screen.draw.text(info, center=(WIDTH // 2, MENU_INFO_Y), fontsize=28, color="gray")
 
+    
+    draw_menu_slider()
+
+    
     for b in buttons:
         r = b["rect"]
         screen.draw.filled_rect(r, (60, 62, 85))
         screen.draw.rect(r, (200, 200, 220))
         screen.draw.text(b["label"], center=r.center, fontsize=36, color="white", owidth=0.5, ocolor="black")
 
-    screen.draw.text("Click sui pulsanti • INVIO avvia • ESC esce",
-                     midbottom=(WIDTH // 2, HEIGHT - 12), fontsize=24, color="gray")
+    
+    screen.draw.text("Click sui pulsanti • Trascina il knob per il volume • INVIO avvia • ESC esce",
+                     midbottom=(WIDTH // 2, HEIGHT - 12), fontsize=22, color="gray")
 
 
 def draw_ui():
@@ -316,33 +354,22 @@ def draw():
         player.draw()
         draw_ui()
 
-    
     if player and player.hp <= 0:
-        screen.draw.text(
-            "GAME OVER",
-            center=(WIDTH // 2, HEIGHT // 2),
-            fontsize=72,
-            color="white",
-            owidth=2,
-            ocolor="black",
-        )
-        screen.draw.text(
-            "Click per tornare al Menu",
-            center=(WIDTH // 2, HEIGHT // 2 + 60),
-            fontsize=32,
-            color="gray",
-        )
+        screen.draw.text("GAME OVER",
+                         center=(WIDTH // 2, HEIGHT // 2),
+                         fontsize=72, color="white", owidth=2, ocolor="black")
+        screen.draw.text("Click per tornare al Menu",
+                         center=(WIDTH // 2, HEIGHT // 2 + 60),
+                         fontsize=32, color="gray")
 
 
 
 def update(dt):
     if state != STATE_GAME or not player:
         return
-
     player.update(dt)
     for e in enemies:
         e.update(dt, player)
-
     
     for e in enemies:
         if hypot(e.x - player.x, e.y - player.y) < 28:
@@ -374,8 +401,25 @@ def on_key_down(key):
             player.try_move(0, 1)
 
 
+def _slider_hit_test(pos):
+    """Ritorna True se clic su barra o knob."""
+    x, y = pos
+    bar_x = WIDTH // 2 - SLIDER_W // 2
+    bar_y = SLIDER_Y
+    
+    rect = Rect(bar_x, bar_y - 16, SLIDER_W, 32)
+    return rect.collidepoint(pos)
+
+
+def _slider_set_from_pos(pos):
+    x, _ = pos
+    bar_x = WIDTH // 2 - SLIDER_W // 2
+    t = (x - bar_x) / SLIDER_W
+    set_master_volume(t)
+
+
 def on_mouse_down(pos):
-    global music_enabled, sfx_enabled
+    global music_enabled, sfx_enabled, dragging_slider
     if state == STATE_GAME:
         if player and player.hp <= 0:
             play_sfx("click")
@@ -383,6 +427,16 @@ def on_mouse_down(pos):
         return
 
     
+    if _slider_hit_test(pos):
+        dragging_slider = True
+        _slider_set_from_pos(pos)
+        
+        try:
+            music.set_volume(master_volume)
+        except Exception:
+            pass
+        return
+
     for b in buttons:
         if b["rect"].collidepoint(pos):
             label = b["label"]
@@ -393,14 +447,31 @@ def on_mouse_down(pos):
                 music_enabled = not music_enabled
                 sfx_enabled = not sfx_enabled
                 try:
-                    if music_enabled and state == STATE_GAME:
-                        music.play("theme")
-                    else:
-                        music.stop()
+                    if state == STATE_GAME:
+                        if music_enabled:
+                            music.play("theme")
+                            music.set_volume(master_volume)
+                        else:
+                            music.stop()
                 except Exception:
                     pass
             elif label == "Exit":
                 raise SystemExit
+
+
+def on_mouse_up(pos):
+    global dragging_slider
+    dragging_slider = False
+
+
+def on_mouse_move(pos, rel, buttons):
+    
+    if state == STATE_MENU and dragging_slider:
+        _slider_set_from_pos(pos)
+        try:
+            music.set_volume(master_volume)
+        except Exception:
+            pass
 
 
 
@@ -413,3 +484,6 @@ def tick_animation():
 
 
 clock.schedule_interval(tick_animation, 0.15)
+
+
+set_master_volume(master_volume)
