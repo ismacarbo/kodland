@@ -1,45 +1,57 @@
+# main_final.py — PgZero roguelike (menu, audio, slider volume, nemici, HP, animazioni)
+# -------------------------------------------------------------------------------------
+# Librerie consentite: PgZero, math, random (+ Rect da pygame)
+# Asset richiesti:
+#   images/hero_idle_0..3.png, images/hero_walk_0..3.png
+#   images/slime_idle_0..2.png, images/slime_walk_0..3.png
+#   sounds/step.ogg, sounds/hit.ogg, sounds/click.ogg
+#   music/theme.ogg
+#
+# Avvio:
+#   pgzrun main_final.py
+
 from pygame import Rect
 from math import hypot
 from random import choice, randint
 
-
+# --- Config griglia ---
 TITLE = "Tiny Grid Roguelike — Final"
 TILE = 64
 COLS, ROWS = 10, 8
 WIDTH, HEIGHT = COLS * TILE, ROWS * TILE
 
-
+# --- Stati gioco ---
 STATE_MENU = "menu"
 STATE_GAME = "game"
 state = STATE_MENU
 
-
+# --- Audio flags e volume ---
 music_enabled = True
 sfx_enabled = True
-master_volume = 0.8  
+master_volume = 0.8  # 0.0..1.0
 
-
+# --- Layout Menu (sposta i bottoni più in giù) ---
 MENU_TITLE_Y = 80
 MENU_INFO_Y = 130
 SLIDER_Y = 200
 SLIDER_W = 360
 SLIDER_H = 8
 BUTTON_W, BUTTON_H, BUTTON_GAP = 300, 64, 16
-BUTTONS_BASE_Y = 280  
+BUTTONS_BASE_Y = 280  # <- più in basso per lasciare spazio a titolo + info + slider
 
-
+# Slider state
 dragging_slider = False
 
-
+# --- Mappa semplice (# = muro, . = pavimento) ---
 LEVEL = [
-    "
-    "
-    "
-    "
-    "
-    "
-    "
-    "
+    "##########",
+    "#........#",
+    "#..##....#",
+    "#........#",
+    "#...##...#",
+    "#........#",
+    "#..#.....#",
+    "##########",
 ]
 
 
@@ -50,7 +62,7 @@ def grid_to_px(gx, gy):
 def is_blocked(gx, gy):
     if gx < 0 or gy < 0 or gx >= COLS or gy >= ROWS:
         return True
-    return LEVEL[gy][gx] == "
+    return LEVEL[gy][gx] == "#"
 
 
 def clamp(v, lo, hi):
@@ -62,11 +74,11 @@ def set_master_volume(v):
     global master_volume
     master_volume = clamp(v, 0.0, 1.0)
     try:
-        
+        # Musica
         music.set_volume(master_volume)
     except Exception:
         pass
-    
+    # SFX: settiamo di volta in volta prima di play() in play_sfx()
 
 
 def play_sfx(name):
@@ -74,7 +86,7 @@ def play_sfx(name):
         return
     try:
         s = getattr(sounds, name)
-        
+        # Imposta il volume ogni volta per essere sicuri che rispetti lo slider
         try:
             s.set_volume(master_volume)
         except Exception:
@@ -103,7 +115,7 @@ class AnimatedActor:
         except Exception:
             self.actor = None
 
-    
+    # animazione
     def set_state(self, st):
         if self.state != st:
             self.state = st
@@ -117,7 +129,7 @@ class AnimatedActor:
             self.frame_index = (self.frame_index + 1) % len(frames)
             self.actor.image = frames[self.frame_index]
 
-    
+    # movimento
     def start_move_grid(self, dx, dy):
         if self.moving:
             return False
@@ -199,7 +211,7 @@ class Enemy(AnimatedActor):
         self.decide_timer -= dt
         if not self.moving and self.decide_timer <= 0:
             self.decide_timer = 0.35 + randint(0, 20) * 0.01
-            
+            # 55% di inseguimento su un solo asse, 45% vagabondaggio
             if randint(0, 100) < 55:
                 dx = 1 if player.gx > self.gx else -1 if player.gx < self.gx else 0
                 dy = 1 if player.gy > self.gy else -1 if player.gy < self.gy else 0
@@ -214,11 +226,11 @@ class Enemy(AnimatedActor):
         self.update_motion(dt)
 
 
-
+# --- Oggetti di gioco (creati su Start) ---
 player = None
 enemies = []
 
-
+# --- Menu: bottoni ---
 buttons = []
 
 
@@ -247,7 +259,7 @@ def start_game():
             continue
         enemies.append(Enemy(gx, gy))
     state = STATE_GAME
-    
+    # musica
     try:
         music.set_volume(master_volume)
         if music_enabled:
@@ -267,13 +279,13 @@ def back_to_menu():
         pass
 
 
-
+# --- Disegno ---
 def draw_grid():
     for gy in range(ROWS):
         for gx in range(COLS):
             x, y = gx * TILE, gy * TILE
             r = Rect(x, y, TILE, TILE)
-            if LEVEL[gy][gx] == "
+            if LEVEL[gy][gx] == "#":
                 screen.draw.filled_rect(r, (35, 40, 60))
             else:
                 screen.draw.filled_rect(r, (24, 26, 36))
@@ -286,19 +298,19 @@ def draw_menu_slider():
     bar_y = SLIDER_Y
     bar_rect = Rect(bar_x, bar_y - SLIDER_H // 2, SLIDER_W, SLIDER_H)
 
-    
+    # barra
     screen.draw.filled_rect(bar_rect, (80, 82, 105))
     screen.draw.rect(bar_rect, (200, 200, 220))
 
-    
+    # knob
     knob_x = int(bar_x + master_volume * SLIDER_W)
     knob_r = 10
-    
+    # hover effect (semplice): ingrandisci se trascini
     r = knob_r + (3 if dragging_slider else 0)
     screen.draw.filled_circle((knob_x, bar_y), r, "white")
     screen.draw.circle((knob_x, bar_y), r, "black")
 
-    
+    # etichette
     screen.draw.text("Volume", midbottom=(WIDTH // 2, bar_y - 12), fontsize=28, color="white", owidth=0.5, ocolor="black")
     screen.draw.text(f"{int(master_volume * 100)}%", midtop=(WIDTH // 2, bar_y + 12), fontsize=24, color="gray")
 
@@ -306,33 +318,33 @@ def draw_menu_slider():
 def draw_menu():
     screen.clear()
     screen.fill((20, 20, 28))
-    
+    # Titolo
     screen.draw.text(
         "Tiny Grid Roguelike",
         center=(WIDTH // 2, MENU_TITLE_Y),
         fontsize=56, color="white", owidth=1.2, ocolor="black"
     )
-    
+    # Info stato audio
     info = f"Music: {'ON' if music_enabled else 'OFF'}   SFX: {'ON' if sfx_enabled else 'OFF'}"
     screen.draw.text(info, center=(WIDTH // 2, MENU_INFO_Y), fontsize=28, color="gray")
 
-    
+    # Slider volume
     draw_menu_slider()
 
-    
+    # Pulsanti
     for b in buttons:
         r = b["rect"]
         screen.draw.filled_rect(r, (60, 62, 85))
         screen.draw.rect(r, (200, 200, 220))
         screen.draw.text(b["label"], center=r.center, fontsize=36, color="white", owidth=0.5, ocolor="black")
 
-    
+    # Hint
     screen.draw.text("Click sui pulsanti • Trascina il knob per il volume • INVIO avvia • ESC esce",
                      midbottom=(WIDTH // 2, HEIGHT - 12), fontsize=22, color="gray")
 
 
 def draw_ui():
-    
+    # cuori semplici
     margin = 8
     for i in range(player.hp):
         r = Rect(margin + i * (18 + 6), margin, 18, 18)
@@ -363,14 +375,14 @@ def draw():
                          fontsize=32, color="gray")
 
 
-
+# --- Update / input ---
 def update(dt):
     if state != STATE_GAME or not player:
         return
     player.update(dt)
     for e in enemies:
         e.update(dt, player)
-    
+    # danno da contatto
     for e in enemies:
         if hypot(e.x - player.x, e.y - player.y) < 28:
             player.take_hit(1)
@@ -386,7 +398,7 @@ def on_key_down(key):
             start_game()
         return
 
-    
+    # in gioco
     if key == keys.ESCAPE:
         back_to_menu()
         return
@@ -406,7 +418,7 @@ def _slider_hit_test(pos):
     x, y = pos
     bar_x = WIDTH // 2 - SLIDER_W // 2
     bar_y = SLIDER_Y
-    
+    # area comoda più alta della barra per facilitare il click
     rect = Rect(bar_x, bar_y - 16, SLIDER_W, 32)
     return rect.collidepoint(pos)
 
@@ -426,11 +438,11 @@ def on_mouse_down(pos):
             back_to_menu()
         return
 
-    
+    # MENU
     if _slider_hit_test(pos):
         dragging_slider = True
         _slider_set_from_pos(pos)
-        
+        # aggiorna musica immediatamente se sta suonando
         try:
             music.set_volume(master_volume)
         except Exception:
@@ -465,7 +477,7 @@ def on_mouse_up(pos):
 
 
 def on_mouse_move(pos, rel, buttons):
-    
+    # trascinamento slider
     if state == STATE_MENU and dragging_slider:
         _slider_set_from_pos(pos)
         try:
@@ -474,7 +486,7 @@ def on_mouse_move(pos, rel, buttons):
             pass
 
 
-
+# --- Ticker animazioni (~6-7 fps) ---
 def tick_animation():
     if state == STATE_GAME:
         if player:
@@ -485,5 +497,5 @@ def tick_animation():
 
 clock.schedule_interval(tick_animation, 0.15)
 
-
+# imposta volume iniziale
 set_master_volume(master_volume)
