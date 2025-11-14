@@ -15,7 +15,7 @@ from math import hypot
 from random import choice, randint
 
 # --- Config griglia ---
-TITLE = "Tiny Grid Roguelike — Final"
+TITLE = "Roguelike su griglia con PgZero"
 TILE = 64
 COLS, ROWS = 10, 8
 WIDTH, HEIGHT = COLS * TILE, ROWS * TILE
@@ -235,15 +235,15 @@ buttons = []
 
 
 def build_buttons():
-    """Costruisce i tre pulsanti, posizionati più in basso."""
     center_x = WIDTH // 2
-    labels = ["Start Game", "Toggle Music + SFX", "Exit"]
+    labels = ["Avvia partita", "Attiva/Disattiva musica e suoni", "Esci"]
     out = []
     for i, label in enumerate(labels):
         r = Rect(0, 0, BUTTON_W, BUTTON_H)
         r.center = (center_x, BUTTONS_BASE_Y + i * (BUTTON_H + BUTTON_GAP))
         out.append({"rect": r, "label": label})
     return out
+
 
 
 buttons = build_buttons()
@@ -453,9 +453,9 @@ def on_mouse_down(pos):
         if b["rect"].collidepoint(pos):
             label = b["label"]
             play_sfx("click")
-            if label == "Start Game":
+            if label == "Avvia partita":
                 start_game()
-            elif label == "Toggle Music + SFX":
+            elif label == "Attiva/Disattiva musica e suoni":
                 music_enabled = not music_enabled
                 sfx_enabled = not sfx_enabled
                 try:
@@ -467,7 +467,7 @@ def on_mouse_down(pos):
                             music.stop()
                 except Exception:
                     pass
-            elif label == "Exit":
+            elif label == "Esci":
                 raise SystemExit
 
 
