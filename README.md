@@ -1,143 +1,141 @@
+# README — Kodland · Python Game (PgZero)
 
-README - Kodland – Python Game (PgZero)
+Questo repository contiene il progetto **Python base**: un piccolo roguelike top‑down su griglia realizzato con **PgZero**.  
+In futuro sarà aggiunta anche una cartella **Python pro** con estensioni avanzate.
 
-Questo repository contiene il progetto **Python base** (un piccolo roguelike top-down su griglia fatto con PgZero).
-A breve verrà aggiunta anche la cartella **Python pro** con estensioni avanzate.
+---
 
-──────────────────────────────────────────────────────────────────────────────
+## Struttura
 
-STRUTTURA
-
+```
 kodland/
-├─ python base/
+├─ pythonBase/
 │  ├─ main.py
 │  ├─ images/
 │  ├─ sounds/
 │  └─ music/
 ├─ requirements.txt
 └─ README.md
+```
 
-Nota: la cartella si chiama "python base" (con uno spazio). Nei comandi del terminale usa le virgolette: cd "python base".
+---
 
-──────────────────────────────────────────────────────────────────────────────
+## Requisiti
 
-REQUISITI
+- **Python 3.9+**
+- Librerie consentite dal compito:
+  - **PgZero**
+  - `math`, `random` (standard library)
+  - Eccezione: import della **classe `Rect`** da `pygame` (permesso)
+- Installa i pacchetti con `requirements.txt` oppure manualmente `pgzero`.
 
-- Python 3.9+
-- Solo librerie consentite dal compito:
-  • PgZero (usa Pygame internamente)
-  • math, random (standard library)
-  • Eccezione: import della classe Rect da pygame (permesso)
-- Installa i pacchetti da requirements.txt oppure manualmente pgzero.
+---
 
-──────────────────────────────────────────────────────────────────────────────
+## Setup rapido (venv)
 
-SETUP RAPIDO (venv)
+Esegui dalla **root** del progetto `kodland/`.
 
-Dalla root del progetto (kodland/):
+### macOS / Linux
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt    # oppure: pip install pgzero
+```
 
-macOS / Linux
-    python3 -m venv .venv
-    source .venv/bin/activate
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt    # oppure: pip install pgzero
+### Windows (PowerShell)
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt    # oppure: pip install pgzero
+```
 
-Windows (PowerShell)
-    py -3 -m venv .venv
-    .\.venv\Scripts\Activate.ps1
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt    # oppure: pip install pgzero
+---
 
-──────────────────────────────────────────────────────────────────────────────
+## Avvio del gioco
 
-AVVIO DEL GIOCO
+```bash
+cd "python base"
+pgzrun main.py
+# Se pgzrun non fosse nel PATH del venv:
+# python -m pygamezero main.py
+```
 
-    cd "python base"
-    pgzrun main.py
-    # Se pgzrun non fosse nel PATH del venv:
-    # python -m pygamezero main.py
+---
 
-──────────────────────────────────────────────────────────────────────────────
+## Asset
 
-CONTENUTI / ASSET
+Usiamo asset **Kenney** (vedi `License.txt` del pack — generalmente CC0).
 
-Usiamo asset Kenney (https://kenney.nl/) – vedi License.txt del pacchetto (generalmente CC0).
+**Immagini attese** (`python base/images/`)
+- Player (idle + walk): `hero_idle_0..3.png`, `hero_walk_0..3.png`
+- Nemico (idle + walk): `slime_idle_0..*.png`, `slime_walk_0..*.png`
 
-Immagini attese (python base/images/)
-- Player (idle + walk):
-  - hero_idle_0.png ... hero_idle_3.png
-  - hero_walk_0.png ... hero_walk_3.png
-- Nemico (idle + walk):
-  - slime_idle_0.png ...
-  - slime_walk_0.png ...
+> Puoi scegliere i frame da `Players/Tiles` e `Enemies/Tiles` dei pacchetti Kenney e **rinominarli** con questi nomi.
 
-Suggerimento: scegli i frame dal pack Kenney (Players/Tiles e Enemies/Tiles) e rinominali con questi nomi.
+**Suoni** (`python base/sounds/`)
+- `step.ogg`  → es. `move-a.ogg` rinominato
+- `hit.ogg`   → es. `hurt-a.ogg` rinominato
+- `click.ogg` → es. `select-a.ogg` rinominato
 
-Suoni (python base/sounds/)
-- step.ogg  → es. move-a.ogg rinominato
-- hit.ogg   → es. hurt-a.ogg rinominato
-- click.ogg → es. select-a.ogg rinominato
+**Musica** (`python base/music/`)
+- `theme.ogg` (loop di sottofondo; va bene anche un Music Loops Kenney)
 
-Musica (python base/music/)
-- theme.ogg (loop; puoi usare un “Music Loops” Kenney)
+---
 
-──────────────────────────────────────────────────────────────────────────────
+## Come si gioca
 
-COME SI GIOCA
+- **Menu principale**
+  - **Avvia partita**: crea il livello, il player e 4 nemici.
+  - **Attiva/Disattiva musica e suoni**: toggle immediato.
+  - **Slider volume**: trascina il knob (0–100%). Influenza musica e SFX.
+  - **Esci**: chiude l’applicazione.
+- **Controlli in gioco**
+  - **WASD / Frecce**: muovi il personaggio di 1 cella con animazione fluida.
+  - **ESC**: torna al menu.
+- **Meccaniche**
+  - I nemici si muovono e tendono a inseguirti.
+  - Contatto con un nemico → perdi 1 cuore (SFX).
+  - A 0 cuori → **Game Over**; click per tornare al menu.
 
-Menu principale
-- Avvia partita: crea il livello, il player e 4 nemici.
-- Attiva/Disattiva musica e suoni: toggle immediato.
-- Slider volume: trascina il knob (0–100%). Influenza musica e SFX.
-- Esci: chiude l’app.
+---
 
-Controlli in gioco
-- WASD / Frecce: muovi il personaggio di 1 cella con animazione fluida.
-- ESC: torna al menu.
+## Consegna / Condivisione
 
-Meccaniche
-- I nemici si muovono e tendono a inseguirti.
-- Contatto con un nemico → perdi 1 cuore (SFX).
-- A 0 cuori → Game Over; click per rientrare nel menu.
+- Consigliato **non includere** la cartella `.venv/` nell’archivio; basta `requirements.txt`.
+- ZIP di esempio (da `~/Desktop`):
+```bash
+zip -r kodland_project.zip kodland -x "kodland/.venv/*"
+```
+- Carica lo ZIP o la cartella su Google Drive/Dropbox e condividi il link.
 
-──────────────────────────────────────────────────────────────────────────────
+---
 
-CONSEGNA / CONDIVISIONE
+## Conformità ai requisiti del compito
 
-Consigliato: non includere .venv/ nell’archivio; basta requirements.txt.
-Per creare uno ZIP minimale:
+- Librerie: **PgZero**, `math`, `random`, `Rect` da `pygame` → ✅  
+- Genere: roguelike top‑down a **griglia** con movimento **fluido** → ✅  
+- Menu con 3 pulsanti richiesti → ✅  
+- **Musica + SFX** (toggle + slider volume) → ✅  
+- **Nemici** che si muovono e **minacciano** (danni a contatto) → ✅  
+- **Classi** con funzioni di **movimento** e **animazione**; sprite **idle** e **walk** → ✅  
+- Nomi chiari in inglese (PEP8-ish) → ✅
 
-    cd ~/Desktop
-    zip -r kodland_project.zip kodland -x "kodland/.venv/*"
+---
 
-Carica lo ZIP o la cartella su Google Drive/Dropbox e condividi il link.
+## Roadmap
 
-──────────────────────────────────────────────────────────────────────────────
+- **Python base** (completo): gioco funzionante come sopra.
+- **Python pro** (in arrivo):
+  - Tileset grafico per la mappa (blit texture Kenney)
+  - Tipi di nemici/pattern aggiuntivi
+  - Pickup, punteggio, livelli multipli
+  - Salvataggi, pausa, opzioni separate Musica/SFX
 
-CONFORMITÀ AI REQUISITI DEL COMPITO
+---
 
-- Librerie: PgZero, math, random, Rect da pygame → OK
-- Genere: roguelike top-down a griglia con movimento fluido → OK
-- Menu con 3 pulsanti richiesti → OK
-- Musica + SFX (toggle + slider volume) → OK
-- Nemici che si muovono e minacciano (danni) → OK
-- Classi con funzioni di movimento e animazione; sprite animati idle e walk → OK
-- Nomi chiari in inglese (PEP8-ish) → OK
+## Licenze
 
-──────────────────────────────────────────────────────────────────────────────
-
-ROADMAP
-
-- Python base (completo): gioco funzionante come sopra.
-- Python pro (in arrivo): idee
-  • Tileset grafico per la mappa (blit texture Kenney)
-  • Nuovi tipi di nemici / pattern
-  • Pickup, punteggio, livelli multipli
-  • Salvataggi, pausa, opzioni separate Musica/SFX
-
-──────────────────────────────────────────────────────────────────────────────
-
-LICENZE
-
-- Codice © 2024 [Il tuo nome].
-- Asset grafici/audio: Kenney – vedi License.txt del pack (di norma CC0 / pubblico dominio).
+- Codice © 2024 _[Il tuo nome]_.
+- Asset grafici/audio: **Kenney** — consulta `License.txt` del pack (di norma CC0 / pubblico dominio).
