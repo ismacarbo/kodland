@@ -137,5 +137,5 @@ zip -r kodland_project.zip kodland -x "kodland/.venv/*"
 
 ## Licenze
 
-- Codice © 2024 _[Il tuo nome]_.
+- Codice © 2024 _[Ismaele]_.
 - Asset grafici/audio: **Kenney** — consulta `License.txt` del pack (di norma CC0 / pubblico dominio).
