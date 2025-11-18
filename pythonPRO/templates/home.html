@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Home - Previsioni del tempo</h2>
+
+<p>Oggi è: {{ weekday }}</p>
+
+<form method="post">
+    <label for="city">Inserisci il nome della città:</label>
+    <input type="text" id="city" name="city" value="{{ city }}" required>
+    <button type="submit">Mostra previsioni</button>
+</form>
+
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+
+{% if forecast %}
+    <h3>Previsioni per {{ city|e }}</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Data</th>
+            <th>Giorno</th>
+            <th>Temperatura minima (°C)</th>
+            <th>Temperatura massima (°C)</th>
+            <th>Descrizione</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for day in forecast %}
+            <tr>
+                <td>{{ day.date }}</td>
+                <td>{{ day.weekday }}</td>
+                <td>{{ day.temp_min }}</td>
+                <td>{{ day.temp_max }}</td>
+                <td>{{ day.description }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+{% endblock %}

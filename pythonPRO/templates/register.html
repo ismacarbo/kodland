@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Registrazione</h2>
+
+<form method="post">
+    <label for="login">Login:</label>
+    <input type="text" id="login" name="login" required>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <label for="confirm_password">Conferma password:</label>
+    <input type="password" id="confirm_password" name="confirm_password" required>
+
+    <label for="nickname">Nickname (visualizzato nella classifica):</label>
+    <input type="text" id="nickname" name="nickname" required>
+
+    <button type="submit">Registrati</button>
+</form>
+{% endblock %}

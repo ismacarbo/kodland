@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Quiz</h2>
+
+{% if user %}
+    <p>Il tuo punteggio totale dalla registrazione: <strong>{{ user['total_score'] }}</strong></p>
+{% endif %}
+
+{% if question %}
+    <form method="post">
+        <input type="hidden" name="question_id" value="{{ question['id'] }}">
+        <p class="question">{{ question['text'] }}</p>
+
+        <div class="options">
+            <label>
+                <input type="radio" name="option" value="1" required>
+                {{ question['option1'] }}
+            </label>
+            <label>
+                <input type="radio" name="option" value="2">
+                {{ question['option2'] }}
+            </label>
+            <label>
+                <input type="radio" name="option" value="3">
+                {{ question['option3'] }}
+            </label>
+            <label>
+                <input type="radio" name="option" value="4">
+                {{ question['option4'] }}
+            </label>
+        </div>
+
+        <button type="submit">Invia risposta</button>
+    </form>
+
+    <p>Le domande vengono mostrate in ordine casuale e puoi rispondere all'infinito.</p>
+{% else %}
+    <p>Non ci sono domande disponibili.</p>
+{% endif %}
+{% endblock %}

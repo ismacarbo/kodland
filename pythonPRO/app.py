@@ -9,17 +9,17 @@ from flask import (
 import requests
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = "cambia-questa-stringa-super-segreta"
+app = Flask(__name__)                                                      
+app.config["SECRET_KEY"] = "ciaociao12345"
 app.config["DATABASE"] = "quiz.db"
 
 
-OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY", "INSERISCI_LA_TUA_API_KEY_QUI")
+OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY", "0fbc9381438375486301f99d38c92cc9")
 
 def get_db_connection():
     conn = sqlite3.connect(app.config["DATABASE"])
     conn.row_factory = sqlite3.Row
-    return conn
+    return conn 
 
 
 def init_db():

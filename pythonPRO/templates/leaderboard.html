@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Classifica del quiz</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Posizione</th>
+        <th>Nickname</th>
+        <th>Punteggio totale</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for player in players %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ player['nickname'] }}</td>
+            <td>{{ player['total_score'] }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <title>Quiz AI in Python</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+    <h1>Quiz su Python e Intelligenza Artificiale</h1>
+    <nav>
+        <a href="{{ url_for('home') }}">Pagina iniziale</a>
+
+        {% if not user %}
+            <a href="{{ url_for('register') }}">Registrazione</a>
+            <a href="{{ url_for('login') }}">Login</a>
+        {% else %}
+            <a href="{{ url_for('quiz') }}">Quiz</a>
+            <a href="{{ url_for('leaderboard') }}">Classifica</a>
+            <a href="{{ url_for('logout') }}">Logout ({{ user['nickname'] }})</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="messages">
+          {% for category, message in messages %}
+            <div class="message {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <p>Creato da: Ismaele Carbonari</p>
+</footer>
+</body>
+</html>
