@@ -1,141 +1,203 @@
-# README — Kodland · Python Game (PgZero)
+# README — Kodland · Python Base + Python Pro
 
-Questo repository contiene il progetto **Python base**: un piccolo roguelike top‑down su griglia realizzato con **PgZero**.  
-In futuro sarà aggiunta anche una cartella **Python pro** con estensioni avanzate.
+Questo repository contiene due progetti del percorso Kodland:
 
----
+1. **Python Base** → un piccolo gioco roguelike top-down su griglia, realizzato con PgZero.
+2. **Python Pro** → un sito web completo realizzato con Flask, con meteo, registrazione, login, quiz e classifica.
 
-## Struttura
+Entrambi i progetti rispettano pienamente i requisiti richiesti dalle consegne.
 
-```
+------------------------------------------------------------
+## STRUTTURA DEL REPOSITORY
+------------------------------------------------------------
+
 kodland/
 ├─ pythonBase/
 │  ├─ main.py
 │  ├─ images/
 │  ├─ sounds/
 │  └─ music/
-├─ requirements.txt
-└─ README.md
-```
+│
+├─ pythonPRO/
+│  ├─ app.py
+│  ├─ quiz.db (generato automaticamente)
+│  ├─ templates/
+│  │   ├─ base.html
+│  │   ├─ home.html
+│  │   ├─ login.html
+│  │   ├─ register.html
+│  │   ├─ quiz.html
+│  │   └─ leaderboard.html
+│  ├─ static/
+│  │   └─ style.css
+│  └─ requirements.txt
+│
+└─ README.md (o README.txt — questo file)
 
----
+------------------------------------------------------------
+# PYTHON BASE — ROGUELIKE PGZERO
+------------------------------------------------------------
 
-## Requisiti
+Il progetto Python base è un gioco top-down su griglia con animazioni, nemici, musica e menu.
 
-- **Python 3.9+**
-- Librerie consentite dal compito:
-  - **PgZero**
-  - `math`, `random` (standard library)
-  - Eccezione: import della **classe `Rect`** da `pygame` (permesso)
-- Installa i pacchetti con `requirements.txt` oppure manualmente `pgzero`.
+### REQUISITI  
+- Python 3.9+
+- Librerie:
+  - PgZero
+  - math, random (standard library)
+  - pygame.Rect (permesso)
+- Installazione tramite `pip install -r requirements.txt`
 
----
-
-## Setup rapido (venv)
-
-Esegui dalla **root** del progetto `kodland/`.
-
-### macOS / Linux
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt    # oppure: pip install pgzero
-```
-
-### Windows (PowerShell)
-```powershell
-py -3 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt    # oppure: pip install pgzero
-```
-
----
-
-## Avvio del gioco
-
-```bash
-cd "python base"
+### AVVIO (dalla cartella pythonBase/)
 pgzrun main.py
-# Se pgzrun non fosse nel PATH del venv:
-# python -m pygamezero main.py
-```
+(se pgzrun non è nel PATH → python -m pygamezero main.py)
 
----
+### ASSET
+Usiamo asset Kenney (CC0).
+- images/: sprite per player e nemici (idle + walk)
+- sounds/: step, hit, click
+- music/: theme.ogg
 
-## Asset
+### COME SI GIOCA
+- Menu:
+  - Avvia Partita
+  - Audio ON/OFF
+  - Slider volume
+  - Esci
+- In gioco:
+  - WASD / frecce per muoverti
+  - Nemici che inseguono
+  - Collisioni → perdi cuori
+  - Game Over → ritorno al menu
 
-Usiamo asset **Kenney** (vedi `License.txt` del pack — generalmente CC0).
+### CONFORMITÀ ALLA CONSEGNA
+✔ Librerie consentite  
+✔ Roguelike top-down su griglia  
+✔ Movimento fluido + animazioni  
+✔ Nemici pericolosi  
+✔ Menu completo  
+✔ Audio & slider volume  
+✔ Sprite idle/walk  
+✔ Classi e codice ben strutturato  
 
-**Immagini attese** (`python base/images/`)
-- Player (idle + walk): `hero_idle_0..3.png`, `hero_walk_0..3.png`
-- Nemico (idle + walk): `slime_idle_0..*.png`, `slime_walk_0..*.png`
+------------------------------------------------------------
+# PYTHON PRO — SITO WEB FLASK (Meteo + Quiz)
+------------------------------------------------------------
 
-> Puoi scegliere i frame da `Players/Tiles` e `Enemies/Tiles` dei pacchetti Kenney e **rinominarli** con questi nomi.
+Il progetto Python PRO è un'applicazione Flask con:
 
-**Suoni** (`python base/sounds/`)
-- `step.ogg`  → es. `move-a.ogg` rinominato
-- `hit.ogg`   → es. `hurt-a.ogg` rinominato
-- `click.ogg` → es. `select-a.ogg` rinominato
+- Home con **meteo 3 giorni**
+- Registrazione con controllo login & nickname unici
+- Login / logout
+- Quiz con domande casuali e punteggio salvato
+- Classifica globale
+- Header dinamico (voci visibili in base al login)
+- Footer col nome dello sviluppatore
+- Hosting compatibile con PythonAnywhere
 
-**Musica** (`python base/music/`)
-- `theme.ogg` (loop di sottofondo; va bene anche un Music Loops Kenney)
+### REQUISITI  
+- Python 3.10+
+- Flask
+- Requests
+- Werkzeug (incluso in Flask)
 
----
+### INSTALLAZIONE (nella cartella pythonPRO/)
+python3 -m venv venv  
+source venv/bin/activate  
+pip install -r requirements.txt  
 
-## Come si gioca
+Imposta la tua API key meteo:
+export OPENWEATHER_API_KEY="LA_TUA_API_KEY"
 
-- **Menu principale**
-  - **Avvia partita**: crea il livello, il player e 4 nemici.
-  - **Attiva/Disattiva musica e suoni**: toggle immediato.
-  - **Slider volume**: trascina il knob (0–100%). Influenza musica e SFX.
-  - **Esci**: chiude l’applicazione.
-- **Controlli in gioco**
-  - **WASD / Frecce**: muovi il personaggio di 1 cella con animazione fluida.
-  - **ESC**: torna al menu.
-- **Meccaniche**
-  - I nemici si muovono e tendono a inseguirti.
-  - Contatto con un nemico → perdi 1 cuore (SFX).
-  - A 0 cuori → **Game Over**; click per tornare al menu.
+### AVVIO
+python app.py  
+→ http://127.0.0.1:5000
 
----
+------------------------------------------------------------
+# STRUTTURA PAGINE (Python PRO)
+------------------------------------------------------------
 
-## Consegna / Condivisione
+### HOME PAGE (/)  
+✔ Campo città  
+✔ Meteo 3 giorni  
+✔ Data + nome del giorno  
+✔ Tabella previsioni  
+✔ Widget meteo tramite API esterna  
 
-- Consigliato **non includere** la cartella `.venv/` nell’archivio; basta `requirements.txt`.
-- ZIP di esempio (da `~/Desktop`):
-```bash
+### REGISTRAZIONE (/register)
+✔ Login unico  
+✔ Password + conferma  
+✔ Nickname unico  
+✔ Login automatico dopo registrazione  
+
+### LOGIN (/login)
+✔ Autenticazione login/password  
+✔ Errori gestiti  
+
+### LOGOUT (/logout)
+✔ Disponibile solo se loggato  
+✔ Sessione pulita  
+
+### QUIZ (/quiz)
+✔ Mostra punteggio utente  
+✔ Domanda casuale ogni volta  
+✔ 4 opzioni  
+✔ Risulta subito corretto/sbagliato  
+✔ +1 punto per risposta corretta  
+✔ Domande infinite  
+
+### CLASSIFICA (/leaderboard)
+✔ Nickname + punteggio  
+✔ Ordinamento corretto  
+
+### HEADER (nav)
+✔ Home  
+✔ Registrazione (se non loggato)  
+✔ Login (se non loggato)  
+✔ Logout (se loggato)  
+✔ Quiz (se loggato)  
+✔ Classifica (se loggato)
+
+### FOOTER
+✔ Nome dello sviluppatore  
+✔ Footer fisso in fondo alla pagina  
+
+------------------------------------------------------------
+# HOSTING (Python PRO)
+------------------------------------------------------------
+
+Completamente compatibile con **PythonAnywhere**:
+- Copiare la cartella pythonPRO/
+- Configurare WSGI
+- Impostare variabile d’ambiente OPENWEATHER_API_KEY
+- Assicurarsi che `templates/` e `static/` siano nella stessa directory di app.py
+
+------------------------------------------------------------
+# ZIP & CONSEGNA
+------------------------------------------------------------
+
+Evita di includere `.venv/`.
+Comando consigliato:
+
 zip -r kodland_project.zip kodland -x "kodland/.venv/*"
-```
-- Carica lo ZIP o la cartella su Google Drive/Dropbox e condividi il link.
 
----
+------------------------------------------------------------
+# LICENZE
+------------------------------------------------------------
 
-## Conformità ai requisiti del compito
+Codice © 2025 Ismaele.  
+Asset grafici/audio Kenney (CC0 / pubblico dominio).  
 
-- Librerie: **PgZero**, `math`, `random`, `Rect` da `pygame` → ✅  
-- Genere: roguelike top‑down a **griglia** con movimento **fluido** → ✅  
-- Menu con 3 pulsanti richiesti → ✅  
-- **Musica + SFX** (toggle + slider volume) → ✅  
-- **Nemici** che si muovono e **minacciano** (danni a contatto) → ✅  
-- **Classi** con funzioni di **movimento** e **animazione**; sprite **idle** e **walk** → ✅  
-- Nomi chiari in inglese (PEP8-ish) → ✅
+------------------------------------------------------------
+# ROADMAP
+------------------------------------------------------------
 
----
+### Python Base
+- Gioco completo e già conforme.
 
-## Roadmap
-
-- **Python base** (completo): gioco funzionante come sopra.
-- **Python pro** (in arrivo):
-  - Tileset grafico per la mappa (blit texture Kenney)
-  - Tipi di nemici/pattern aggiuntivi
-  - Pickup, punteggio, livelli multipli
-  - Salvataggi, pausa, opzioni separate Musica/SFX
-
----
-
-## Licenze
-
-- Codice © 2024 _[Ismaele]_.
-- Asset grafici/audio: **Kenney** — consulta `License.txt` del pack (di norma CC0 / pubblico dominio).
+### Python Pro
+Possibili estensioni future:
+- Icone meteo
+- Domande personalizzabili da pannello admin
+- Sistema a livelli del quiz
+- Profili utente avanzati
